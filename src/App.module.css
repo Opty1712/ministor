@@ -34,3 +34,10 @@
   flex-wrap: wrap;
   gap: 24px;
 }
+
+.empty {
+  max-width: 1180px;
+  margin: 24px auto 0;
+  color: #aab4c4;
+  font-size: 18px;
+}

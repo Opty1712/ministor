@@ -3,6 +3,7 @@ import styles from "./AppCard.module.css";
 export function AppCard({
   cardTitle,
   price,
+  isFree,
   description,
   category,
   platforms,
@@ -17,7 +18,9 @@ export function AppCard({
       <div className={styles.cardContent}>
         <div className={styles.cardHeader}>
           <h2 className={styles.cardTitle}>{cardTitle}</h2>
-          <span className={styles.price}>{price}</span>
+          <span className={styles.price}>
+            {isFree ? "Бесплатно" : `${price} ₽`}
+          </span>
         </div>
 
         <p className={styles.description}>{description}</p>

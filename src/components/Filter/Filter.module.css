@@ -1,0 +1,35 @@
+.filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  align-items: center;
+  width: 100%;
+  max-width: 1180px;
+  margin: 0 auto 24px;
+}
+
+.search,
+.select {
+  border: 1px solid #26364d;
+  border-radius: 8px;
+  background: #0d1729;
+  color: #f3f7ff;
+  font: inherit;
+}
+
+.search {
+  flex: 1 1 280px;
+  min-width: 220px;
+  padding: 12px 14px;
+}
+
+.select {
+  padding: 12px 14px;
+}
+
+.checkboxLabel {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  color: #d8e1f0;
+}
