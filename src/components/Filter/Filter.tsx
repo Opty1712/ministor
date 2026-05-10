@@ -1,5 +1,15 @@
 import styles from "./Filter.module.css";
 
+type FilterProps = {
+  searchText: string,
+  freeOnly: boolean,
+  category: string,
+  categories: Array<string>,
+  onSearchTextChange: (value: string) => void,
+  onFreeOnlyChange: (value: boolean) => void,
+  onCategoryChange: (value: string) => void,
+}
+
 export function Filter({
   searchText,
   freeOnly,
@@ -8,7 +18,7 @@ export function Filter({
   onSearchTextChange,
   onFreeOnlyChange,
   onCategoryChange,
-}) {
+}: FilterProps) {
   return (
     <section className={styles.filter}>
       <input

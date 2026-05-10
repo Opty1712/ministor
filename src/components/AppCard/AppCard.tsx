@@ -1,5 +1,15 @@
 import styles from "./AppCard.module.css";
 
+export type AppCardProps = {
+  cardTitle: string,
+  price: number,
+  isFree: boolean,
+  description: string,
+  category: string,
+  platforms: string,
+  img: string,
+}
+
 export function AppCard({
   cardTitle,
   price,
@@ -8,7 +18,7 @@ export function AppCard({
   category,
   platforms,
   img,
-}) {
+}: AppCardProps) {
   return (
     <article className={styles.card}>
       <div className={styles.imageWrap}>

@@ -1,4 +1,6 @@
-export const apps = [
+import { AppCardProps } from "../components/AppCard/AppCard";
+
+export const apps: Array<AppCardProps> = [
   {
     cardTitle: "Атлас заметок",
     price: 0,
