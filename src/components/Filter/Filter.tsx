@@ -1,10 +1,11 @@
 import styles from "./Filter.module.css";
+import type { CatalogCategory } from "../../types/app";
 
 type FilterProps = {
   searchText: string,
   freeOnly: boolean,
-  category: string,
-  categories: Array<string>,
+  categoryId: string,
+  categories: Array<CatalogCategory>,
   onSearchTextChange: (value: string) => void,
   onFreeOnlyChange: (value: boolean) => void,
   onCategoryChange: (value: string) => void,
@@ -13,7 +14,7 @@ type FilterProps = {
 export function Filter({
   searchText,
   freeOnly,
-  category,
+  categoryId,
   categories,
   onSearchTextChange,
   onFreeOnlyChange,
@@ -40,13 +41,13 @@ export function Filter({
 
       <select
         className={styles.select}
-        value={category}
+        value={categoryId}
         onChange={(event) => onCategoryChange(event.target.value)}
       >
         <option value="">Все категории</option>
-        {categories.map((categoryName) => (
-          <option value={categoryName} key={categoryName}>
-            {categoryName}
+        {categories.map((category) => (
+          <option value={category.id} key={category.id}>
+            {category.title}
           </option>
         ))}
       </select>

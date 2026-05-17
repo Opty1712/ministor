@@ -41,3 +41,18 @@
   color: #aab4c4;
   font-size: 18px;
 }
+
+.state,
+.error {
+  max-width: 1180px;
+  margin: 24px auto 0;
+  font-size: 18px;
+}
+
+.state {
+  color: #aab4c4;
+}
+
+.error {
+  color: #ffb4a8;
+}

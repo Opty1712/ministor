@@ -1,26 +1,57 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { getApps, getCategories } from "./api/apps";
 import styles from "./App.module.css";
 import { AppCard } from "./components/AppCard/AppCard";
 import { Filter } from "./components/Filter/Filter";
-import { apps } from "./data/apps";
+import type { CatalogApp, CatalogCategory } from "./types/app";
 
-const categories = [...new Set(apps.map((app) => app.category))];
+const SEARCH_DEBOUNCE_MS = 350;
 
 export default function App() {
+  const [apps, setApps] = useState<Array<CatalogApp>>([]);
+  const [categories, setCategories] = useState<Array<CatalogCategory>>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
   const [searchText, setSearchText] = useState("");
+  const debouncedSearchText = useDebouncedValue(searchText, SEARCH_DEBOUNCE_MS);
   const [freeOnly, setFreeOnly] = useState(false);
-  const [category, setCategory] = useState("");
+  const [categoryId, setCategoryId] = useState("");
 
-  const filteredApps = apps.filter((app) => {
-    const text = searchText.trim().toLowerCase();
-    const matchesText =
-      app.cardTitle.toLowerCase().includes(text) ||
-      app.description.toLowerCase().includes(text);
-    const matchesFree = !freeOnly || app.isFree;
-    const matchesCategory = category === "" || app.category === category;
+  useEffect(() => {
+    async function loadCategories() {
+      try {
+        const loadedCategories = await getCategories();
+        setCategories(loadedCategories);
+      } catch {
+        setLoadError("Не удалось загрузить категории");
+      }
+    }
 
-    return matchesText && matchesFree && matchesCategory;
-  });
+    loadCategories();
+  }, []);
+
+  useEffect(() => {
+    async function loadApps() {
+      setIsLoading(true);
+
+      try {
+        const loadedApps = await getApps({
+          q: debouncedSearchText.trim(),
+          categoryId,
+          isFree: freeOnly ? true : undefined,
+        });
+
+        setApps(loadedApps);
+        setLoadError("");
+      } catch {
+        setLoadError("Не удалось загрузить приложения");
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    loadApps();
+  }, [categoryId, debouncedSearchText, freeOnly]);
 
   return (
     <div className={styles.page}>
@@ -31,22 +62,40 @@ export default function App() {
       <Filter
         searchText={searchText}
         freeOnly={freeOnly}
-        category={category}
+        categoryId={categoryId}
         categories={categories}
         onSearchTextChange={setSearchText}
         onFreeOnlyChange={setFreeOnly}
-        onCategoryChange={setCategory}
+        onCategoryChange={setCategoryId}
       />
 
       <main className={styles.catalog}>
-        {filteredApps.map((props) => (
-          <AppCard {...props} key={props.cardTitle} />
+        {apps.map((props) => (
+          <AppCard {...props} key={props.id} />
         ))}
       </main>
 
-      {filteredApps.length === 0 && (
+      {isLoading && <p className={styles.state}>Загрузка приложений...</p>}
+
+      {!isLoading && loadError && <p className={styles.error}>{loadError}</p>}
+
+      {!isLoading && !loadError && apps.length === 0 && (
         <p className={styles.empty}>Приложения не найдены</p>
       )}
     </div>
   );
+}
+
+function useDebouncedValue(value: string, delay: number) {
+  const [debouncedValue, setDebouncedValue] = useState(value);
+
+  useEffect(() => {
+    const timeoutId = window.setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [delay, value]);
+
+  return debouncedValue;
 }
