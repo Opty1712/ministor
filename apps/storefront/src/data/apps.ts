@@ -1,6 +1,6 @@
-import { AppCardProps } from "../components/AppCard/AppCard";
+import type { AppCard } from "@ministor/api";
 
-export const apps: Array<AppCardProps> = [
+export const apps: AppCard[] = [
   {
     cardTitle: "Атлас заметок",
     price: 0,

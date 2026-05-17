@@ -1,3 +1,4 @@
+import { getApps } from "@ministor/api";
 import { useState } from "react";
 import styles from "./App.module.css";
 import { AppCard } from "./components/AppCard/AppCard";
@@ -21,6 +22,8 @@ export default function App() {
 
     return matchesText && matchesFree && matchesCategory;
   });
+
+  getApps();
 
   return (
     <div className={styles.page}>

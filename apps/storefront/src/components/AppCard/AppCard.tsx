@@ -1,14 +1,7 @@
+import type { AppCard as AppCardData } from "@ministor/api";
 import styles from "./AppCard.module.css";
 
-export type AppCardProps = {
-  cardTitle: string,
-  price: number,
-  isFree: boolean,
-  description: string,
-  category: string,
-  platforms: string,
-  img: string,
-}
+export type AppCardProps = AppCardData;
 
 export function AppCard({
   cardTitle,
