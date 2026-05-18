@@ -1,57 +1,31 @@
 import { useEffect, useState } from "react";
-import { getApps, getCategories } from "./api/apps";
+import { observer } from "mobx-react-lite";
 import styles from "./App.module.css";
 import { AppCard } from "./components/AppCard/AppCard";
 import { Filter } from "./components/Filter/Filter";
-import type { CatalogApp, CatalogCategory } from "./types/app";
+import { useStore } from "./stores/useStore";
 
 const SEARCH_DEBOUNCE_MS = 350;
 
-export default function App() {
-  const [apps, setApps] = useState<Array<CatalogApp>>([]);
-  const [categories, setCategories] = useState<Array<CatalogCategory>>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [loadError, setLoadError] = useState("");
-  const [searchText, setSearchText] = useState("");
-  const debouncedSearchText = useDebouncedValue(searchText, SEARCH_DEBOUNCE_MS);
-  const [freeOnly, setFreeOnly] = useState(false);
-  const [categoryId, setCategoryId] = useState("");
+function App() {
+  const { catalogStore } = useStore();
+  const debouncedSearchText = useDebouncedValue(
+    catalogStore.searchText,
+    SEARCH_DEBOUNCE_MS,
+  );
 
   useEffect(() => {
-    async function loadCategories() {
-      try {
-        const loadedCategories = await getCategories();
-        setCategories(loadedCategories);
-      } catch {
-        setLoadError("Не удалось загрузить категории");
-      }
-    }
-
-    loadCategories();
-  }, []);
+    void catalogStore.loadCategories();
+  }, [catalogStore]);
 
   useEffect(() => {
-    async function loadApps() {
-      setIsLoading(true);
-
-      try {
-        const loadedApps = await getApps({
-          q: debouncedSearchText.trim(),
-          categoryId,
-          isFree: freeOnly ? true : undefined,
-        });
-
-        setApps(loadedApps);
-        setLoadError("");
-      } catch {
-        setLoadError("Не удалось загрузить приложения");
-      } finally {
-        setIsLoading(false);
-      }
-    }
-
-    loadApps();
-  }, [categoryId, debouncedSearchText, freeOnly]);
+    void catalogStore.loadApps(debouncedSearchText);
+  }, [
+    catalogStore,
+    catalogStore.categoryId,
+    debouncedSearchText,
+    catalogStore.freeOnly,
+  ]);
 
   return (
     <div className={styles.page}>
@@ -60,31 +34,39 @@ export default function App() {
       </header>
 
       <Filter
-        searchText={searchText}
-        freeOnly={freeOnly}
-        categoryId={categoryId}
-        categories={categories}
-        onSearchTextChange={setSearchText}
-        onFreeOnlyChange={setFreeOnly}
-        onCategoryChange={setCategoryId}
+        searchText={catalogStore.searchText}
+        freeOnly={catalogStore.freeOnly}
+        categoryId={catalogStore.categoryId}
+        categories={catalogStore.categories}
+        onSearchTextChange={catalogStore.setSearchText}
+        onFreeOnlyChange={catalogStore.setFreeOnly}
+        onCategoryChange={catalogStore.setCategoryId}
       />
 
       <main className={styles.catalog}>
-        {apps.map((props) => (
+        {catalogStore.apps.map((props) => (
           <AppCard {...props} key={props.id} />
         ))}
       </main>
 
-      {isLoading && <p className={styles.state}>Загрузка приложений...</p>}
-
-      {!isLoading && loadError && <p className={styles.error}>{loadError}</p>}
-
-      {!isLoading && !loadError && apps.length === 0 && (
-        <p className={styles.empty}>Приложения не найдены</p>
+      {catalogStore.isLoading && (
+        <p className={styles.state}>Загрузка приложений...</p>
       )}
+
+      {!catalogStore.isLoading && catalogStore.loadError && (
+        <p className={styles.error}>{catalogStore.loadError}</p>
+      )}
+
+      {!catalogStore.isLoading &&
+        !catalogStore.loadError &&
+        catalogStore.isEmpty && (
+          <p className={styles.empty}>Приложения не найдены</p>
+        )}
     </div>
   );
 }
+
+export default observer(App);
 
 function useDebouncedValue(value: string, delay: number) {
   const [debouncedValue, setDebouncedValue] = useState(value);
