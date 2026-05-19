@@ -1,4 +1,4 @@
-import type { CatalogApp, CatalogCategory } from "../types/app";
+import { CatalogApp, CatalogCategory } from "./types";
 
 const API_BASE_URL = "https://ministor.ru";
 const DEFAULT_APPS_LIMIT = 100;
@@ -64,7 +64,9 @@ export type CategoryListResponse = {
   items?: Array<ApiCategory>;
 };
 
-export async function getApps(params: AppsQueryParams = {}): Promise<Array<CatalogApp>> {
+export async function getApps(
+  params: AppsQueryParams = {},
+): Promise<Array<CatalogApp>> {
   const url = new URL("/api/apps", API_BASE_URL);
   const limit = params.limit ?? DEFAULT_APPS_LIMIT;
 

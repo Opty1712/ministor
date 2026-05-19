@@ -13,6 +13,5 @@
     "experimentalDecorators": true,
     "useDefineForClassFields": true,
     "noEmit": true
-  },
-  "include": ["src"]
+  }
 }

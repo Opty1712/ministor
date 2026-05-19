@@ -1,5 +1,5 @@
+import { CatalogApp } from "@ministor/api";
 import styles from "./AppCard.module.css";
-import type { CatalogApp } from "../../types/app";
 
 export type AppCardProps = Omit<CatalogApp, "id" | "categoryId">;
 

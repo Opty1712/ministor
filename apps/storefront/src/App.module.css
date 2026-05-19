@@ -4,7 +4,7 @@
   background: #08111f;
   color: #f3f7ff;
 
-  @media (max-width: 720px) {
+  @media (width <= 720px) {
     padding: 16px;
   }
 }
@@ -24,7 +24,7 @@
   font-size: 44px;
   line-height: 1;
 
-  @media (max-width: 720px) {
+  @media (width <= 720px) {
     font-size: 32px;
   }
 }

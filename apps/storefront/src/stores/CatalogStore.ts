@@ -1,10 +1,21 @@
-import { action, computed, makeObservable, observable, runInAction } from "mobx";
-import { getApps, getCategories } from "../api/apps";
-import type { CatalogApp, CatalogCategory } from "../types/app";
+import {
+  CatalogApp,
+  CatalogCategory,
+  getApps,
+  getCategories,
+} from "@ministor/api";
+import {
+  action,
+  computed,
+  makeObservable,
+  observable,
+  runInAction,
+} from "mobx";
 
 export class CatalogStore {
   @observable apps: Array<CatalogApp> = [];
-  @observable categories: Array<CatalogCategory> = [];
+  @observable
+  categories: Array<CatalogCategory> = [];
   @observable isLoading = false;
   @observable loadError = "";
   @observable searchText = "";

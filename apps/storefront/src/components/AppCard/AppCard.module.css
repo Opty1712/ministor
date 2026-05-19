@@ -9,7 +9,7 @@
   border-radius: 18px;
   background: #0d1729;
 
-  @media (max-width: 720px) {
+  @media (width <= 720px) {
     flex-basis: 100%;
     max-width: none;
   }
@@ -24,13 +24,6 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-}
-
-.price {
-  border-radius: 24px;
-  background: #1b2738;
-  color: #8ae8cf;
-  font-weight: 700;
 }
 
 .cardContent {
@@ -54,6 +47,10 @@
 }
 
 .price {
+  border-radius: 24px;
+  background: #1b2738;
+  color: #8ae8cf;
+  font-weight: 700;
   flex-shrink: 0;
   align-self: flex-start;
   padding: 7px 12px;
