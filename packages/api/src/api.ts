@@ -1,9 +1,10 @@
-import {
+import type {
   ApiApp,
+  ApiCategory,
   AppsQueryParams,
   CatalogApp,
   CatalogCategory,
-  CategoryListResponse,
+  EditorApp,
   LoginParams,
 } from "./types";
 
@@ -55,7 +56,9 @@ export async function getApps(
     throw new Error("Apps response has unexpected format");
   }
 
-  return data.items.map(mapApiAppToCatalogApp);
+  const items: Array<ApiApp> = data.items;
+
+  return items.map(mapApiAppToCatalogApp);
 }
 
 export async function getCategories(): Promise<Array<CatalogCategory>> {
@@ -65,18 +68,44 @@ export async function getCategories(): Promise<Array<CatalogCategory>> {
     throw new Error(`Categories request failed with status ${response.status}`);
   }
 
-  const data = (await response.json()) as CategoryListResponse;
+  const data = await response.json();
 
   if (!data.success || !Array.isArray(data.items)) {
     throw new Error("Categories response has unexpected format");
   }
 
-  return data.items
+  const items: Array<ApiCategory> = data.items;
+
+  return items
     .map((category) => ({
       id: category.id,
       title: category.title,
     }))
     .sort((left, right) => left.title.localeCompare(right.title, "ru"));
+}
+
+export async function getMyApps(token: string): Promise<Array<EditorApp>> {
+  const url = new URL("/api/me/apps", API_BASE_URL);
+
+  const response = await fetch(url, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error("Не удалось загрузить приложения.");
+  }
+
+  const data = await response.json();
+
+  if (!data.success || !Array.isArray(data.items)) {
+    throw new Error("Ответ списка приложений имеет неожиданный формат.");
+  }
+
+  const items: Array<ApiApp> = data.items;
+
+  return items.map(mapApiAppToEditorApp);
 }
 
 function appendQueryParam(
@@ -104,6 +133,18 @@ function mapApiAppToCatalogApp(app: ApiApp): CatalogApp {
     category: app.category?.title ?? "Без категории",
     platforms: formatPlatforms(app.platforms),
     img: getAbsoluteAssetUrl(app.cover?.url),
+  };
+}
+
+function mapApiAppToEditorApp(app: ApiApp): EditorApp {
+  const price = app.price ?? 0;
+
+  return {
+    id: app.id,
+    title: app.title,
+    category: app.category?.title ?? "Без категории",
+    price,
+    isFree: app.isFree ?? price <= 0,
   };
 }
 

@@ -42,21 +42,15 @@ export type AppsQueryParams = {
   isFree?: boolean;
 };
 
-export type AppListResponse = {
-  success: boolean;
-  items?: Array<ApiApp>;
-};
-
-export type CategoryListResponse = {
-  success: boolean;
-  items?: Array<ApiCategory>;
-};
-
 export type LoginParams = {
   email: string;
   password: string;
 };
 
-export type LoginResponse = {
-  token?: string;
+export type EditorApp = {
+  id: string;
+  title: string;
+  category: string;
+  price: number;
+  isFree: boolean;
 };
