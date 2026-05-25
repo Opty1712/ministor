@@ -1,3 +1,12 @@
+import {
+  Button,
+  FormItem,
+  Group,
+  Header,
+  Input,
+  Panel,
+  Text,
+} from "@vkontakte/vkui";
 import { ChangeEvent, SubmitEvent, useState } from "react";
 import { useLocation } from "wouter";
 import { useStore } from "../stores/useStore";
@@ -37,36 +46,42 @@ export function Login() {
   }
 
   return (
-    <main>
-      <h1>Вход в админку</h1>
+    <Panel nav="login">
+      <Group header={<Header>Вход в админку</Header>}>
+        <form onSubmit={handleSubmit}>
+          <FormItem top="Email">
+            <Input
+              name="email"
+              type="email"
+              value={form.email}
+              onChange={handleFieldChange}
+              required
+            />
+          </FormItem>
 
-      <form onSubmit={handleSubmit}>
-        <label>
-          Email
-          <input
-            name="email"
-            type="email"
-            value={form.email}
-            onChange={handleFieldChange}
-            required
-          />
-        </label>
+          <FormItem top="Пароль">
+            <Input
+              name="password"
+              type="password"
+              value={form.password}
+              onChange={handleFieldChange}
+              required
+            />
+          </FormItem>
 
-        <label>
-          Пароль
-          <input
-            name="password"
-            type="password"
-            value={form.password}
-            onChange={handleFieldChange}
-            required
-          />
-        </label>
+          <FormItem>
+            <Button type="submit">Войти</Button>
+          </FormItem>
+        </form>
 
-        <button type="submit">Войти</button>
-      </form>
-
-      {error && <p role="alert">{error}</p>}
-    </main>
+        {error && (
+          <FormItem>
+            <Text Component="p" role="alert">
+              {error}
+            </Text>
+          </FormItem>
+        )}
+      </Group>
+    </Panel>
   );
 }

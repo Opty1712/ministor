@@ -1,7 +1,17 @@
 import type { EditorApp } from "@ministor/api";
+import {
+  Button,
+  ButtonGroup,
+  Group,
+  Header,
+  Link,
+  Panel,
+  SimpleCell,
+  Text,
+} from "@vkontakte/vkui";
 import { observer } from "mobx-react-lite";
 import { useEffect } from "react";
-import { Link, Redirect, useLocation } from "wouter";
+import { Redirect, Link as RouterLink, useLocation } from "wouter";
 import { useStore } from "../stores/useStore";
 
 export const AppList = observer(function AppList() {
@@ -24,52 +34,63 @@ export const AppList = observer(function AppList() {
   }
 
   return (
-    <main>
-      <header>
-        <h1>Приложения</h1>
-        <p>Список ваших приложений.</p>
-        <Link href="/admin/create">Создать приложение</Link>
-        <button type="button" onClick={handleLogout}>
-          Выйти
-        </button>
-      </header>
+    <Panel nav="apps">
+      <Group header={<Header>Приложения</Header>}>
+       
 
-      {appStore.isLoading && <p>Загрузка приложений...</p>}
+          <ButtonGroup mode="horizontal" gap="s">
+            <Button
+              type="button"
+              size="m"
+              onClick={() => setLocation("/admin/create")}
+            >
+              Создать приложение
+            </Button>
+            <Button
+              type="button"
+              size="m"
+              mode="secondary"
+              onClick={handleLogout}
+            >
+              Выйти
+            </Button>
+          </ButtonGroup>
 
-      {!appStore.isLoading && appStore.loadError && (
-        <p role="alert">{appStore.loadError}</p>
-      )}
-
-      {!appStore.isLoading &&
-        !appStore.loadError &&
-        appStore.apps.length === 0 && <p>У вас пока нет приложений.</p>}
-
-      {!appStore.isLoading &&
-        !appStore.loadError &&
-        appStore.apps.length > 0 && (
-          <table>
-            <thead>
-              <tr>
-                <th>Название</th>
-                <th>Категория</th>
-                <th>Цена</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              {appStore.apps.map((app) => (
-                <tr key={app.id}>
-                  <td>
-                    <Link href={`/admin/edit/${app.id}`}>{app.title}</Link>
-                  </td>
-                  <td>{app.category?.title ?? "Без категории"}</td>
-                  <td>{formatPrice(app)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        {appStore.isLoading && (
+            <Text>Загрузка приложений...</Text>
         )}
-    </main>
+
+        {!appStore.isLoading && appStore.loadError && (
+            <Text Component="p" role="alert">
+              {appStore.loadError}
+            </Text>
+        )}
+
+        {!appStore.isLoading &&
+          !appStore.loadError &&
+          appStore.apps.length === 0 && (
+              <Text>У вас пока нет приложений.</Text>
+          )}
+
+        {!appStore.isLoading &&
+          !appStore.loadError &&
+          appStore.apps.length > 0 && (
+            <>
+              {appStore.apps.map((app) => (
+                <SimpleCell
+                  key={app.id}
+                  subtitle={app.category?.title ?? "Без категории"}
+                  indicator={formatPrice(app)}
+                >
+                  <RouterLink href={`/admin/edit/${app.id}`} asChild>
+                    <Link>{app.title}</Link>
+                  </RouterLink>
+                </SimpleCell>
+              ))}
+            </>
+          )}
+      </Group>
+    </Panel>
   );
 });
 

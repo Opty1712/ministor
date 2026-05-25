@@ -1,11 +1,23 @@
 import {
   API_BASE_URL,
   uploadMyAppCover,
-  type EditorAppInput
+  type EditorAppInput,
 } from "@ministor/api";
+import {
+  Button,
+  ButtonGroup,
+  Caption,
+  File,
+  FormItem,
+  Input,
+  Link,
+  NativeSelect,
+  Text,
+  Textarea,
+} from "@vkontakte/vkui";
 import { observer } from "mobx-react-lite";
 import { ChangeEvent, SubmitEvent, useEffect, useState } from "react";
-import { Link } from "wouter";
+import { Link as RouterLink } from "wouter";
 import { useStore } from "../stores/useStore";
 
 type AppFormProps = {
@@ -84,81 +96,69 @@ export const AppForm = observer(function AppForm({
 
   return (
     <form onSubmit={handleSubmit}>
-      <p>
-        <label>
-          Название
-          <input
-            name="title"
-            value={form.title}
-            onChange={handleFieldChange}
-            required
-          />
-        </label>
-      </p>
+      <RouterLink href="/admin" asChild>
+        <Link>← К списку приложений</Link>
+      </RouterLink>
 
-      <p>
-        <label>
-          Slug
-          <input
-            name="slug"
-            value={form.slug}
-            onChange={handleFieldChange}
-            required
-          />
-        </label>
-      </p>
+      <FormItem top="Название">
+        <Input
+          name="title"
+          value={form.title}
+          onChange={handleFieldChange}
+          required
+        />
+      </FormItem>
 
-      <p>
-        <label>
-          Описание
-          <textarea
-            name="description"
-            value={form.description}
-            onChange={handleFieldChange}
-            required
-          />
-        </label>
-      </p>
+      <FormItem top="Slug">
+        <Input
+          name="slug"
+          value={form.slug}
+          onChange={handleFieldChange}
+          required
+        />
+      </FormItem>
 
-      <p>
-        <label>
-          Категория
-          <select
-            name="categoryId"
-            value={form.categoryId}
-            onChange={handleFieldChange}
-            required
-          >
-            <option value="">Выберите категорию</option>
-            {appStore.categories.map((category) => (
-              <option key={category.id} value={category.id}>
-                {category.title}
-              </option>
-            ))}
-          </select>
-        </label>
-      </p>
+      <FormItem top="Описание">
+        <Textarea
+          name="description"
+          value={form.description}
+          onChange={handleFieldChange}
+          required
+        />
+      </FormItem>
 
-      <p>
-        <label>
-          Цена
-          <input
-            name="price"
-            type="number"
-            min="0"
-            value={form.price}
-            onChange={handleFieldChange}
-            required
-          />
-        </label>
-      </p>
+      <FormItem top="Категория">
+        <NativeSelect
+          name="categoryId"
+          value={form.categoryId}
+          onChange={handleFieldChange}
+          required
+        >
+          <option value="">Выберите категорию</option>
+          {appStore.categories.map((category) => (
+            <option key={category.id} value={category.id}>
+              {category.title}
+            </option>
+          ))}
+        </NativeSelect>
+      </FormItem>
 
-      <p>
-        <label>
-          Обложка
-          <input type="file" accept="image/*" onChange={handleCoverChange} />
-        </label>
-      </p>
+      <FormItem top="Цена">
+        <Input
+          name="price"
+          type="number"
+          min="0"
+          value={form.price}
+          onChange={handleFieldChange}
+          required
+        />
+      </FormItem>
+
+      <FormItem top="Обложка">
+        <File accept="image/*" onChange={handleCoverChange}>
+          Выбрать обложку
+        </File>
+      </FormItem>
 
       {form.cover && (
         <figure>
@@ -167,23 +167,42 @@ export const AppForm = observer(function AppForm({
             alt={form.cover.alt ?? "Обложка приложения"}
             width="240"
           />
-          <figcaption>{form.cover.url}</figcaption>
-          <button type="button" onClick={handleRemoveCover}>
+          <figcaption>
+            <Caption>{form.cover.url}</Caption>
+          </figcaption>
+          <Button type="button" mode="secondary" onClick={handleRemoveCover}>
             Удалить обложку
-          </button>
+          </Button>
         </figure>
       )}
 
-      {coverFile && <p>Будет загружена обложка: {coverFile.name}</p>}
-
-      {appStore.categoriesLoadError && (
-        <p role="alert">{appStore.categoriesLoadError}</p>
+      {coverFile && (
+        <FormItem>
+          <Text>Будет загружена обложка: {coverFile.name}</Text>
+        </FormItem>
       )}
 
-      {error && <p role="alert">{error}</p>}
+      {appStore.categoriesLoadError && (
+        <FormItem>
+          <Text Component="p" role="alert">
+            {appStore.categoriesLoadError}
+          </Text>
+        </FormItem>
+      )}
 
-      <button type="submit">{submitText}</button>
-      <Link href="/admin">К списку приложений</Link>
+      {error && (
+        <FormItem>
+          <Text Component="p" role="alert">
+            {error}
+          </Text>
+        </FormItem>
+      )}
+
+      <FormItem>
+        <ButtonGroup mode="horizontal" gap="s">
+          <Button type="submit">{submitText}</Button>
+        </ButtonGroup>
+      </FormItem>
     </form>
   );
 });

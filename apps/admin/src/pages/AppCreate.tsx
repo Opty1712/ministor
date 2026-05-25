@@ -1,3 +1,4 @@
+import { Group, Header, Panel } from "@vkontakte/vkui";
 import { createMyApp, type EditorAppInput } from "@ministor/api";
 import { observer } from "mobx-react-lite";
 import { Redirect, useLocation } from "wouter";
@@ -26,14 +27,15 @@ export const AppCreate = observer(function AppCreate() {
   }
 
   return (
-    <main>
-      <h1>Создать приложение</h1>
-      <AppForm
-        token={userStore.token}
-        initialValue={EMPTY_APP}
-        submitText="Создать"
-        onSubmit={handleSubmit}
-      />
-    </main>
+    <Panel nav="create">
+      <Group header={<Header>Создать приложение</Header>}>
+        <AppForm
+          token={userStore.token}
+          initialValue={EMPTY_APP}
+          submitText="Создать"
+          onSubmit={handleSubmit}
+        />
+      </Group>
+    </Panel>
   );
 });

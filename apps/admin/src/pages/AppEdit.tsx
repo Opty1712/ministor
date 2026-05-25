@@ -1,4 +1,5 @@
 import { deleteMyApp, updateMyApp, type EditorAppInput } from "@ministor/api";
+import { Button, Group, Header, Panel, Text } from "@vkontakte/vkui";
 import { observer } from "mobx-react-lite";
 import { useEffect, useState } from "react";
 import { Redirect, useLocation, useParams } from "wouter";
@@ -49,29 +50,38 @@ export const AppEdit = observer(function AppEdit() {
   }
 
   return (
-    <main>
-      <h1>Редактировать приложение</h1>
-      {appStore.isLoading && <p>Загрузка приложения...</p>}
-      {!appStore.isLoading && appStore.loadError && (
-        <p role="alert">{appStore.loadError}</p>
-      )}
-      {!appStore.isLoading && !appStore.loadError && !app && (
-        <p>Приложение не найдено в списке.</p>
-      )}
-      {!appStore.isLoading && !appStore.loadError && app && (
-        <AppForm
-          token={userStore.token}
-          initialValue={app}
-          submitText="Сохранить"
-          onSubmit={handleSubmit}
-        />
-      )}
-      {!appStore.isLoading && !appStore.loadError && app && (
-        <button type="button" onClick={handleDelete}>
-          Удалить приложение
-        </button>
-      )}
-      {deleteError && <p role="alert">{deleteError}</p>}
-    </main>
+    <Panel nav="edit">
+      <Group header={<Header>Редактировать приложение</Header>}>
+        {appStore.isLoading && (
+            <Text>Загрузка приложения...</Text>
+        )}
+        {!appStore.isLoading && appStore.loadError && (
+            <Text Component="p" role="alert">
+              {appStore.loadError}
+            </Text>
+        )}
+        {!appStore.isLoading && !appStore.loadError && !app && (
+            <Text>Приложение не найдено в списке.</Text>
+        )}
+        {!appStore.isLoading && !appStore.loadError && app && (
+          <AppForm
+            token={userStore.token}
+            initialValue={app}
+            submitText="Сохранить"
+            onSubmit={handleSubmit}
+          />
+        )}
+        {!appStore.isLoading && !appStore.loadError && app && (
+            <Button type="button" mode="secondary" onClick={handleDelete}>
+              Удалить приложение
+            </Button>
+        )}
+        {deleteError && (
+            <Text Component="p" role="alert">
+              {deleteError}
+            </Text>
+        )}
+      </Group>
+    </Panel>
   );
 });

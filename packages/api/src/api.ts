@@ -124,7 +124,7 @@ export async function updateMyApp(
   await sendMyAppRequest(
     token,
     `/api/me/apps/${id}`,
-    "PUT",
+    "PATCH",
     app,
     "Не удалось сохранить приложение.",
   );
@@ -197,7 +197,7 @@ function appendQueryParam(
 async function sendMyAppRequest(
   token: string,
   path: string,
-  method: "POST" | "PUT" | "DELETE",
+  method: "POST" | "PATCH" | "DELETE",
   app: EditorAppInput | null,
   errorMessage: string,
 ) {
