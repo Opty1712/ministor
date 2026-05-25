@@ -1,7 +1,7 @@
 import {
   getCategories,
   getMyApps,
-  type CatalogCategory,
+  type Category,
   type EditorApp,
 } from "@ministor/api";
 import { action, makeObservable, observable, runInAction } from "mobx";
@@ -10,7 +10,7 @@ export class AppStore {
   @observable
   apps: Array<EditorApp> = [];
   @observable
-  categories: Array<CatalogCategory> = [];
+  categories: Array<Category> = [];
   @observable
   isLoading = false;
   @observable

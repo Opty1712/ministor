@@ -1,4 +1,5 @@
 export {
+  API_BASE_URL,
   createMyApp,
   deleteMyApp,
   getApps,
@@ -6,10 +7,13 @@ export {
   getMyApps,
   login,
   updateMyApp,
+  uploadMyAppCover,
 } from "./api";
 export type {
+  AppImage,
   CatalogApp,
-  CatalogCategory,
+  Category,
   EditorApp,
   EditorAppInput,
+  LoginParams,
 } from "./types";

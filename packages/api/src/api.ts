@@ -1,15 +1,15 @@
 import type {
   ApiApp,
-  ApiCategory,
+  AppImage,
   AppsQueryParams,
   CatalogApp,
-  CatalogCategory,
+  Category,
   EditorApp,
   EditorAppInput,
   LoginParams,
 } from "./types";
 
-const API_BASE_URL = "https://ministor.ru";
+export const API_BASE_URL = "https://ministor.ru";
 const DEFAULT_APPS_LIMIT = 100;
 const FALLBACK_COVER_URL = `${API_BASE_URL}/favicon.svg`;
 
@@ -62,7 +62,7 @@ export async function getApps(
   return items.map(mapApiAppToCatalogApp);
 }
 
-export async function getCategories(): Promise<Array<CatalogCategory>> {
+export async function getCategories(): Promise<Array<Category>> {
   const response = await fetch(new URL("/api/categories", API_BASE_URL));
 
   if (!response.ok) {
@@ -75,14 +75,11 @@ export async function getCategories(): Promise<Array<CatalogCategory>> {
     throw new Error("Categories response has unexpected format");
   }
 
-  const items: Array<ApiCategory> = data.items;
+  const items: Array<Category> = data.items;
 
-  return items
-    .map((category) => ({
-      id: category.id,
-      title: category.title,
-    }))
-    .sort((left, right) => left.title.localeCompare(right.title, "ru"));
+  return items.sort((left, right) =>
+    left.title.localeCompare(right.title, "ru"),
+  );
 }
 
 export async function getMyApps(token: string): Promise<Array<EditorApp>> {
@@ -104,9 +101,9 @@ export async function getMyApps(token: string): Promise<Array<EditorApp>> {
     throw new Error("Ответ списка приложений имеет неожиданный формат.");
   }
 
-  const items: Array<ApiApp> = data.items;
+  const items: Array<EditorApp> = data.items;
 
-  return items.map(mapApiAppToEditorApp);
+  return items;
 }
 
 export async function createMyApp(token: string, app: EditorAppInput) {
@@ -141,6 +138,48 @@ export async function deleteMyApp(token: string, id: string) {
     null,
     "Не удалось удалить приложение.",
   );
+}
+
+export async function uploadMyAppCover(
+  token: string,
+  slug: string,
+  file: File,
+): Promise<AppImage> {
+  const formData = new FormData();
+
+  formData.append("kind", "cover");
+  formData.append("slug", slug);
+  formData.append("assetFolder", slug);
+  formData.append("file", file);
+
+  const response = await fetch(
+    new URL("/api/admin/uploads/images", API_BASE_URL),
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData,
+    },
+  );
+
+  if (!response.ok) {
+    throw new Error("Не удалось загрузить изображения.");
+  }
+
+  const data = await response.json();
+
+  if (!data.success || !Array.isArray(data.items)) {
+    throw new Error("Ответ загрузки изображений имеет неожиданный формат.");
+  }
+
+  const [uploadedCover] = data.items;
+
+  if (!uploadedCover) {
+    throw new Error("Сервер не вернул обложку.");
+  }
+
+  return uploadedCover;
 }
 
 function appendQueryParam(
@@ -194,21 +233,6 @@ function mapApiAppToCatalogApp(app: ApiApp): CatalogApp {
     category: app.category?.title ?? "Без категории",
     platforms: formatPlatforms(app.platforms),
     img: getAbsoluteAssetUrl(app.cover?.url),
-  };
-}
-
-function mapApiAppToEditorApp(app: ApiApp): EditorApp {
-  const price = app.price ?? 0;
-
-  return {
-    id: app.id,
-    title: app.title,
-    slug: app.slug ?? "",
-    description: app.description,
-    categoryId: app.categoryId ?? "",
-    category: app.category?.title ?? "Без категории",
-    price,
-    isFree: app.isFree ?? price <= 0,
   };
 }
 

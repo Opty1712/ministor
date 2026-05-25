@@ -1,9 +1,4 @@
-import {
-  CatalogApp,
-  CatalogCategory,
-  getApps,
-  getCategories,
-} from "@ministor/api";
+import { CatalogApp, Category, getApps, getCategories } from "@ministor/api";
 import {
   action,
   computed,
@@ -15,7 +10,7 @@ import {
 export class CatalogStore {
   @observable apps: Array<CatalogApp> = [];
   @observable
-  categories: Array<CatalogCategory> = [];
+  categories: Array<Category> = [];
   @observable isLoading = false;
   @observable loadError = "";
   @observable searchText = "";

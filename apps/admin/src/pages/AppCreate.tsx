@@ -1,7 +1,8 @@
 import { createMyApp, type EditorAppInput } from "@ministor/api";
+import { observer } from "mobx-react-lite";
 import { Redirect, useLocation } from "wouter";
 import { AppForm } from "../components/AppForm";
-import { getToken } from "../tokenStorage";
+import { useStore } from "../stores/useStore";
 
 const EMPTY_APP: EditorAppInput = {
   title: "",
@@ -11,18 +12,16 @@ const EMPTY_APP: EditorAppInput = {
   price: 0,
 };
 
-export function AppCreate() {
+export const AppCreate = observer(function AppCreate() {
+  const { userStore } = useStore();
   const [, setLocation] = useLocation();
-  const token = getToken();
 
-  if (!token) {
+  if (!userStore.isLoggedIn) {
     return <Redirect to="/" replace />;
   }
 
-  const authToken = token;
-
   async function handleSubmit(value: EditorAppInput) {
-    await createMyApp(authToken, value);
+    await createMyApp(userStore.token, value);
     setLocation("/admin");
   }
 
@@ -30,10 +29,11 @@ export function AppCreate() {
     <main>
       <h1>Создать приложение</h1>
       <AppForm
+        token={userStore.token}
         initialValue={EMPTY_APP}
         submitText="Создать"
         onSubmit={handleSubmit}
       />
     </main>
   );
-}
+});

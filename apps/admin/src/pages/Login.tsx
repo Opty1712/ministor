@@ -1,7 +1,6 @@
-import { login } from "@ministor/api";
 import { ChangeEvent, SubmitEvent, useState } from "react";
 import { useLocation } from "wouter";
-import { saveToken } from "../tokenStorage";
+import { useStore } from "../stores/useStore";
 
 type LoginForm = {
   email: string;
@@ -9,6 +8,7 @@ type LoginForm = {
 };
 
 export function Login() {
+  const { userStore } = useStore();
   const [, setLocation] = useLocation();
   const [error, setError] = useState("");
 
@@ -29,9 +29,7 @@ export function Login() {
     setError("");
 
     try {
-      const token = await login(form);
-
-      saveToken(token);
+      await userStore.login(form);
       setLocation("/admin");
     } catch {
       setError("Не удалось войти. Попробуйте еще раз.");

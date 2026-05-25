@@ -3,25 +3,23 @@ import { observer } from "mobx-react-lite";
 import { useEffect } from "react";
 import { Link, Redirect, useLocation } from "wouter";
 import { useStore } from "../stores/useStore";
-import { clearToken, getToken } from "../tokenStorage";
 
 export const AppList = observer(function AppList() {
-  const { appStore } = useStore();
+  const { appStore, userStore } = useStore();
   const [, setLocation] = useLocation();
-  const token = getToken();
 
   useEffect(() => {
-    if (token) {
-      appStore.loadApps(token);
+    if (userStore.token) {
+      appStore.loadApps(userStore.token);
     }
-  }, [appStore, token]);
+  }, [appStore, userStore.token]);
 
-  if (!token) {
+  if (!userStore.isLoggedIn) {
     return <Redirect to="/" replace />;
   }
 
   function handleLogout() {
-    clearToken();
+    userStore.logout();
     setLocation("/");
   }
 
@@ -64,7 +62,7 @@ export const AppList = observer(function AppList() {
                   <td>
                     <Link href={`/admin/edit/${app.id}`}>{app.title}</Link>
                   </td>
-                  <td>{app.category}</td>
+                  <td>{app.category?.title ?? "Без категории"}</td>
                   <td>{formatPrice(app)}</td>
                 </tr>
               ))}

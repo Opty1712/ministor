@@ -10,18 +10,19 @@ export type CatalogApp = {
   img: string;
 };
 
-export type CatalogCategory = {
+export type Category = {
   id: string;
   title: string;
 };
 
-export type ApiCategory = {
-  id: string;
-  title: string;
-};
-
-export type ApiMedia = {
-  url?: string;
+export type AppImage = {
+  url: string;
+  storageKey: string;
+  alt?: string;
+  width: number;
+  height: number;
+  mimeType: string;
+  size: number;
 };
 
 export type ApiApp = {
@@ -30,11 +31,11 @@ export type ApiApp = {
   slug?: string;
   description: string;
   categoryId: string | null;
-  category?: ApiCategory | null;
+  category?: Category | null;
   platforms?: Array<string>;
   price?: number;
   isFree?: boolean;
-  cover?: ApiMedia | null;
+  cover?: AppImage | null;
 };
 
 export type AppsQueryParams = {
@@ -54,9 +55,10 @@ export type EditorApp = {
   slug: string;
   description: string;
   categoryId: string;
-  category: string;
+  category?: Category | null;
   price: number;
-  isFree: boolean;
+  isFree?: boolean;
+  cover?: AppImage | null;
 };
 
 export type EditorAppInput = {
@@ -65,4 +67,5 @@ export type EditorAppInput = {
   description: string;
   categoryId: string;
   price: number;
+  cover?: AppImage | null;
 };

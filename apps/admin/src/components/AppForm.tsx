@@ -1,25 +1,29 @@
-import type { EditorAppInput } from "@ministor/api";
+import {
+  API_BASE_URL,
+  uploadMyAppCover,
+  type EditorAppInput
+} from "@ministor/api";
 import { observer } from "mobx-react-lite";
 import { ChangeEvent, SubmitEvent, useEffect, useState } from "react";
 import { Link } from "wouter";
 import { useStore } from "../stores/useStore";
 
 type AppFormProps = {
+  token: string;
   initialValue: EditorAppInput;
   submitText: string;
   onSubmit: (value: EditorAppInput) => Promise<void>;
 };
 
 export const AppForm = observer(function AppForm({
+  token,
   initialValue,
   submitText,
   onSubmit,
 }: AppFormProps) {
   const { appStore } = useStore();
-  const [form, setForm] = useState({
-    ...initialValue,
-    price: String(initialValue.price),
-  });
+  const [form, setForm] = useState<EditorAppInput>(initialValue);
+  const [coverFile, setCoverFile] = useState<File | null>(null);
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -41,17 +45,40 @@ export const AppForm = observer(function AppForm({
     });
   }
 
+  function handleCoverChange(event: ChangeEvent<HTMLInputElement>) {
+    setCoverFile(event.target.files?.[0] ?? null);
+  }
+
+  function handleRemoveCover() {
+    setForm({
+      ...form,
+      cover: null,
+    });
+  }
+
   async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
     setError("");
+    const slug = form.slug.trim();
+
+    if (coverFile && !slug) {
+      setError("Чтобы загрузить обложку, укажите slug.");
+      return;
+    }
 
     try {
+      const cover = coverFile
+        ? await uploadMyAppCover(token, slug, coverFile)
+        : form.cover;
+
       await onSubmit({
         ...form,
+        slug,
         price: Number(form.price) || 0,
+        cover,
       });
     } catch {
-      setError("Не удалось сохранить приложение.");
+      setError("Не удалось загрузить обложку или сохранить приложение.");
     }
   }
 
@@ -126,6 +153,29 @@ export const AppForm = observer(function AppForm({
         </label>
       </p>
 
+      <p>
+        <label>
+          Обложка
+          <input type="file" accept="image/*" onChange={handleCoverChange} />
+        </label>
+      </p>
+
+      {form.cover && (
+        <figure>
+          <img
+            src={getImageSrc(form.cover.url)}
+            alt={form.cover.alt ?? "Обложка приложения"}
+            width="240"
+          />
+          <figcaption>{form.cover.url}</figcaption>
+          <button type="button" onClick={handleRemoveCover}>
+            Удалить обложку
+          </button>
+        </figure>
+      )}
+
+      {coverFile && <p>Будет загружена обложка: {coverFile.name}</p>}
+
       {appStore.categoriesLoadError && (
         <p role="alert">{appStore.categoriesLoadError}</p>
       )}
@@ -137,3 +187,7 @@ export const AppForm = observer(function AppForm({
     </form>
   );
 });
+
+function getImageSrc(url: string) {
+  return new URL(url, API_BASE_URL).toString();
+}

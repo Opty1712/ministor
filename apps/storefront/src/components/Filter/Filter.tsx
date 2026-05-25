@@ -1,11 +1,11 @@
-import { CatalogCategory } from "@ministor/api";
+import { Category } from "@ministor/api";
 import styles from "./Filter.module.css";
 
 type FilterProps = {
   searchText: string;
   freeOnly: boolean;
   categoryId: string;
-  categories: Array<CatalogCategory>;
+  categories: Array<Category>;
   onSearchTextChange: (value: string) => void;
   onFreeOnlyChange: (value: boolean) => void;
   onCategoryChange: (value: string) => void;
