@@ -1,13 +1,22 @@
-import { getMyApps, type EditorApp } from "@ministor/api";
+import {
+  getCategories,
+  getMyApps,
+  type CatalogCategory,
+  type EditorApp,
+} from "@ministor/api";
 import { action, makeObservable, observable, runInAction } from "mobx";
 
 export class AppStore {
   @observable
   apps: Array<EditorApp> = [];
   @observable
+  categories: Array<CatalogCategory> = [];
+  @observable
   isLoading = false;
   @observable
   loadError = "";
+  @observable
+  categoriesLoadError = "";
 
   constructor() {
     makeObservable(this);
@@ -31,6 +40,23 @@ export class AppStore {
     } finally {
       runInAction(() => {
         this.isLoading = false;
+      });
+    }
+  }
+
+  @action.bound
+  async loadCategories() {
+    this.categoriesLoadError = "";
+
+    try {
+      const categories = await getCategories();
+
+      runInAction(() => {
+        this.categories = categories;
+      });
+    } catch {
+      runInAction(() => {
+        this.categoriesLoadError = "Не удалось загрузить категории.";
       });
     }
   }

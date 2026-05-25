@@ -1,2 +1,15 @@
-export { getApps, getCategories, getMyApps, login } from "./api";
-export type { CatalogApp, CatalogCategory, EditorApp } from "./types";
+export {
+  createMyApp,
+  deleteMyApp,
+  getApps,
+  getCategories,
+  getMyApps,
+  login,
+  updateMyApp,
+} from "./api";
+export type {
+  CatalogApp,
+  CatalogCategory,
+  EditorApp,
+  EditorAppInput,
+} from "./types";

@@ -5,6 +5,7 @@ import type {
   CatalogApp,
   CatalogCategory,
   EditorApp,
+  EditorAppInput,
   LoginParams,
 } from "./types";
 
@@ -108,6 +109,40 @@ export async function getMyApps(token: string): Promise<Array<EditorApp>> {
   return items.map(mapApiAppToEditorApp);
 }
 
+export async function createMyApp(token: string, app: EditorAppInput) {
+  await sendMyAppRequest(
+    token,
+    "/api/me/apps",
+    "POST",
+    app,
+    "Не удалось создать приложение.",
+  );
+}
+
+export async function updateMyApp(
+  token: string,
+  id: string,
+  app: EditorAppInput,
+) {
+  await sendMyAppRequest(
+    token,
+    `/api/me/apps/${id}`,
+    "PUT",
+    app,
+    "Не удалось сохранить приложение.",
+  );
+}
+
+export async function deleteMyApp(token: string, id: string) {
+  await sendMyAppRequest(
+    token,
+    `/api/me/apps/${id}`,
+    "DELETE",
+    null,
+    "Не удалось удалить приложение.",
+  );
+}
+
 function appendQueryParam(
   url: URL,
   name: string,
@@ -118,6 +153,32 @@ function appendQueryParam(
   }
 
   url.searchParams.set(name, String(value));
+}
+
+async function sendMyAppRequest(
+  token: string,
+  path: string,
+  method: "POST" | "PUT" | "DELETE",
+  app: EditorAppInput | null,
+  errorMessage: string,
+) {
+  const headers: Record<string, string> = {
+    Authorization: `Bearer ${token}`,
+  };
+
+  if (app) {
+    headers["Content-Type"] = "application/json";
+  }
+
+  const response = await fetch(new URL(path, API_BASE_URL), {
+    method,
+    headers,
+    body: app ? JSON.stringify(app) : undefined,
+  });
+
+  if (!response.ok) {
+    throw new Error(errorMessage);
+  }
 }
 
 function mapApiAppToCatalogApp(app: ApiApp): CatalogApp {
@@ -142,6 +203,9 @@ function mapApiAppToEditorApp(app: ApiApp): EditorApp {
   return {
     id: app.id,
     title: app.title,
+    slug: app.slug ?? "",
+    description: app.description,
+    categoryId: app.categoryId ?? "",
     category: app.category?.title ?? "Без категории",
     price,
     isFree: app.isFree ?? price <= 0,

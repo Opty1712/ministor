@@ -27,6 +27,7 @@ export type ApiMedia = {
 export type ApiApp = {
   id: string;
   title: string;
+  slug?: string;
   description: string;
   categoryId: string | null;
   category?: ApiCategory | null;
@@ -50,7 +51,18 @@ export type LoginParams = {
 export type EditorApp = {
   id: string;
   title: string;
+  slug: string;
+  description: string;
+  categoryId: string;
   category: string;
   price: number;
   isFree: boolean;
+};
+
+export type EditorAppInput = {
+  title: string;
+  slug: string;
+  description: string;
+  categoryId: string;
+  price: number;
 };

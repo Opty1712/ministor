@@ -12,7 +12,7 @@ export const AppList = observer(function AppList() {
 
   useEffect(() => {
     if (token) {
-      void appStore.loadApps(token);
+      appStore.loadApps(token);
     }
   }, [appStore, token]);
 
