@@ -1,36 +1,20 @@
-import { getMyApps, type EditorApp } from "@ministor/api";
-import { useEffect, useState } from "react";
-import { Redirect, useLocation } from "wouter";
+import type { EditorApp } from "@ministor/api";
+import { observer } from "mobx-react-lite";
+import { useEffect } from "react";
+import { Link, Redirect, useLocation } from "wouter";
+import { useStore } from "../stores/useStore";
 import { clearToken, getToken } from "../tokenStorage";
 
-export function AppList() {
+export const AppList = observer(function AppList() {
+  const { appStore } = useStore();
   const [, setLocation] = useLocation();
   const token = getToken();
-  const [apps, setApps] = useState<Array<EditorApp>>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState("");
-
-  async function loadApps() {
-      setIsLoading(true);
-      setError("");
-
-      if (!token) {
-        return
-      }
-
-      try {
-        const loadedApps = await getMyApps(token);
-        setApps(loadedApps);
-      } catch {
-        setError("Не удалось загрузить приложения.");
-      } finally {
-        setIsLoading(false);
-      }
-    }
 
   useEffect(() => {
-    loadApps();
-  }, []);
+    if (token) {
+      void appStore.loadApps(token);
+    }
+  }, [appStore, token]);
 
   if (!token) {
     return <Redirect to="/" replace />;
@@ -46,45 +30,50 @@ export function AppList() {
       <header>
         <h1>Приложения</h1>
         <p>Список ваших приложений.</p>
+        <Link href="/admin/create">Создать приложение</Link>
         <button type="button" onClick={handleLogout}>
           Выйти
         </button>
       </header>
 
-      {isLoading && <p>Загрузка приложений...</p>}
+      {appStore.isLoading && <p>Загрузка приложений...</p>}
 
-      {!isLoading && error && <p role="alert">{error}</p>}
-
-      {!isLoading && !error && apps.length === 0 && (
-        <p>У вас пока нет приложений.</p>
+      {!appStore.isLoading && appStore.loadError && (
+        <p role="alert">{appStore.loadError}</p>
       )}
 
-      {!isLoading && !error && apps.length > 0 && (
-        <table>
-          <thead>
-            <tr>
-              <th>Название</th>
-              <th>Категория</th>
-              <th>Цена</th>
-            </tr>
-          </thead>
+      {!appStore.isLoading &&
+        !appStore.loadError &&
+        appStore.apps.length === 0 && <p>У вас пока нет приложений.</p>}
 
-          <tbody>
-            {apps.map((app) => (
-              <tr key={app.id}>
-                <td>
-                  <strong>{app.title}</strong>
-                </td>
-                <td>{app.category}</td>
-                <td>{formatPrice(app)}</td>
+      {!appStore.isLoading &&
+        !appStore.loadError &&
+        appStore.apps.length > 0 && (
+          <table>
+            <thead>
+              <tr>
+                <th>Название</th>
+                <th>Категория</th>
+                <th>Цена</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
+            </thead>
+
+            <tbody>
+              {appStore.apps.map((app) => (
+                <tr key={app.id}>
+                  <td>
+                    <Link href={`/admin/edit/${app.id}`}>{app.title}</Link>
+                  </td>
+                  <td>{app.category}</td>
+                  <td>{formatPrice(app)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
     </main>
   );
-}
+});
 
 function formatPrice(app: EditorApp) {
   if (app.isFree || app.price <= 0) {
