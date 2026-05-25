@@ -1,81 +1,47 @@
-import { CatalogApp, CatalogCategory } from "./types";
+import {
+  ApiApp,
+  AppsQueryParams,
+  CatalogApp,
+  CatalogCategory,
+  CategoryListResponse,
+  LoginParams,
+} from "./types";
 
 const API_BASE_URL = "https://ministor.ru";
 const DEFAULT_APPS_LIMIT = 100;
 const FALLBACK_COVER_URL = `${API_BASE_URL}/favicon.svg`;
 
-export type ApiCategory = {
-  id: string;
-  title: string;
-  slug: string;
-  description?: string;
-  sortOrder?: number;
-  createdAt?: string | null;
-  updatedAt?: string | null;
-};
+export async function login({ email, password }: LoginParams): Promise<string> {
+  const response = await fetch(new URL("/api/auth/login", API_BASE_URL), {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ email, password }),
+  });
 
-export type ApiMedia = {
-  url?: string;
-  storageKey?: string | null;
-  alt?: string;
-  width?: number | null;
-  height?: number | null;
-  mimeType?: string | null;
-  size?: number | null;
-};
+  if (!response.ok) {
+    throw new Error("Не удалось войти. Проверьте email и пароль.");
+  }
 
-export type ApiApp = {
-  id: string;
-  title: string;
-  slug: string;
-  description: string;
-  categoryId: string | null;
-  category?: ApiCategory | null;
-  platforms?: Array<string>;
-  price?: number;
-  isFree?: boolean;
-  releaseDate?: string | null;
-  ownerId?: string | null;
-  cover?: ApiMedia | null;
-  screenshots?: Array<ApiMedia>;
-  createdAt?: string | null;
-  updatedAt?: string | null;
-};
+  const data = await response.json();
 
-export type AppsQueryParams = {
-  q?: string;
-  categoryId?: string;
-  platform?: string;
-  isFree?: boolean;
-  page?: number;
-  limit?: number;
-};
+  if (!data.token) {
+    throw new Error("Сервер не вернул token.");
+  }
 
-export type AppListResponse = {
-  success: boolean;
-  items?: Array<ApiApp>;
-  total?: number;
-  page?: number;
-  limit?: number;
-};
-
-export type CategoryListResponse = {
-  success: boolean;
-  items?: Array<ApiCategory>;
-};
+  return data.token;
+}
 
 export async function getApps(
   params: AppsQueryParams = {},
 ): Promise<Array<CatalogApp>> {
   const url = new URL("/api/apps", API_BASE_URL);
-  const limit = params.limit ?? DEFAULT_APPS_LIMIT;
 
   appendQueryParam(url, "q", params.q);
   appendQueryParam(url, "categoryId", params.categoryId);
-  appendQueryParam(url, "platform", params.platform);
   appendQueryParam(url, "isFree", params.isFree);
-  appendQueryParam(url, "page", params.page);
-  appendQueryParam(url, "limit", limit);
+  appendQueryParam(url, "limit", DEFAULT_APPS_LIMIT);
 
   const response = await fetch(url);
 
@@ -83,7 +49,7 @@ export async function getApps(
     throw new Error(`Apps request failed with status ${response.status}`);
   }
 
-  const data = (await response.json()) as AppListResponse;
+  const data = await response.json();
 
   if (!data.success || !Array.isArray(data.items)) {
     throw new Error("Apps response has unexpected format");
