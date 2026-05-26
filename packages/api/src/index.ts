@@ -1,2 +1,9 @@
-export { getApps, getCategories, login } from "./api";
-export type { CatalogApp, CatalogCategory } from "./types";
+export { createApp, getApps, getCategories, getMyApps, login } from "./api";
+export type {
+  ApiCategory,
+  AppFields,
+  CatalogApp,
+  CatalogCategory,
+  CreateAppArgs,
+  LoginParams,
+} from "./types";

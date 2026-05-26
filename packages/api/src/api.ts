@@ -1,23 +1,26 @@
 import {
   ApiApp,
+  AppFields,
   AppsQueryParams,
   CatalogApp,
   CatalogCategory,
   CategoryListResponse,
+  CreateAppArgs,
   LoginParams,
+  LoginResponse,
 } from "./types";
 
 const API_BASE_URL = "https://ministor.ru";
 const DEFAULT_APPS_LIMIT = 100;
 const FALLBACK_COVER_URL = `${API_BASE_URL}/favicon.svg`;
 
-export async function login({ email, password }: LoginParams): Promise<string> {
+export async function login(body: LoginParams): Promise<LoginResponse> {
   const response = await fetch(new URL("/api/auth/login", API_BASE_URL), {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ email, password }),
+    body: JSON.stringify(body),
   });
 
   if (!response.ok) {
@@ -30,7 +33,7 @@ export async function login({ email, password }: LoginParams): Promise<string> {
     throw new Error("Сервер не вернул token.");
   }
 
-  return data.token;
+  return { token: data.token, email: data.user.email };
 }
 
 export async function getApps(
@@ -56,6 +59,28 @@ export async function getApps(
   }
 
   return data.items.map(mapApiAppToCatalogApp);
+}
+
+export async function getMyApps(token: string): Promise<Array<ApiApp>> {
+  const url = new URL("/api/me/apps", API_BASE_URL);
+
+  const response = await fetch(url, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error("Не удалось получить приложения");
+  }
+
+  const data = await response.json();
+
+  if (!data.success || !Array.isArray(data.items)) {
+    throw new Error("Некорректный формат ответа с приложениями");
+  }
+
+  return data.items;
 }
 
 export async function getCategories(): Promise<Array<CatalogCategory>> {
@@ -121,4 +146,30 @@ function getAbsoluteAssetUrl(url: string | undefined): string {
   }
 
   return new URL(url, API_BASE_URL).toString();
+}
+
+type SendRequestArgs = {
+  token: string;
+  url: string;
+  method: "POST" | "PATCH" | "DELETE";
+  body: AppFields | null;
+};
+
+async function sendRequest({ token, url, method, body }: SendRequestArgs) {
+  const response = await fetch(new URL(url, API_BASE_URL), {
+    method,
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: body ? JSON.stringify(body) : undefined,
+  });
+
+  if (!response.ok) {
+    throw new Error("Не удалось получить приложения");
+  }
+}
+
+export async function createApp({ token, body }: CreateAppArgs) {
+  sendRequest({ body, method: "POST", token, url: "/api/me/apps" });
 }

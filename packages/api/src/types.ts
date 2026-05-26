@@ -58,5 +58,19 @@ export type LoginParams = {
 };
 
 export type LoginResponse = {
-  token?: string;
+  token: string;
+  email: string;
+};
+
+export type AppFields = {
+  title: string;
+  slug: string;
+  description: string;
+  price: number;
+  categoryId: string;
+};
+
+export type CreateAppArgs = {
+  token: string;
+  body: AppFields;
 };
