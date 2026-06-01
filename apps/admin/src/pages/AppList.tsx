@@ -36,41 +36,35 @@ export const AppList = observer(function AppList() {
   return (
     <Panel nav="apps">
       <Group header={<Header>Приложения</Header>}>
-       
+        <ButtonGroup mode="horizontal" gap="s">
+          <Button
+            type="button"
+            size="m"
+            onClick={() => setLocation("/admin/create")}
+          >
+            Создать приложение
+          </Button>
+          <Button
+            type="button"
+            size="m"
+            mode="secondary"
+            onClick={handleLogout}
+          >
+            Выйти
+          </Button>
+        </ButtonGroup>
 
-          <ButtonGroup mode="horizontal" gap="s">
-            <Button
-              type="button"
-              size="m"
-              onClick={() => setLocation("/admin/create")}
-            >
-              Создать приложение
-            </Button>
-            <Button
-              type="button"
-              size="m"
-              mode="secondary"
-              onClick={handleLogout}
-            >
-              Выйти
-            </Button>
-          </ButtonGroup>
-
-        {appStore.isLoading && (
-            <Text>Загрузка приложений...</Text>
-        )}
+        {appStore.isLoading && <Text>Загрузка приложений...</Text>}
 
         {!appStore.isLoading && appStore.loadError && (
-            <Text Component="p" role="alert">
-              {appStore.loadError}
-            </Text>
+          <Text Component="p" role="alert">
+            {appStore.loadError}
+          </Text>
         )}
 
         {!appStore.isLoading &&
           !appStore.loadError &&
-          appStore.apps.length === 0 && (
-              <Text>У вас пока нет приложений.</Text>
-          )}
+          appStore.apps.length === 0 && <Text>У вас пока нет приложений.</Text>}
 
         {!appStore.isLoading &&
           !appStore.loadError &&

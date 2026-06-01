@@ -52,16 +52,14 @@ export const AppEdit = observer(function AppEdit() {
   return (
     <Panel nav="edit">
       <Group header={<Header>Редактировать приложение</Header>}>
-        {appStore.isLoading && (
-            <Text>Загрузка приложения...</Text>
-        )}
+        {appStore.isLoading && <Text>Загрузка приложения...</Text>}
         {!appStore.isLoading && appStore.loadError && (
-            <Text Component="p" role="alert">
-              {appStore.loadError}
-            </Text>
+          <Text Component="p" role="alert">
+            {appStore.loadError}
+          </Text>
         )}
         {!appStore.isLoading && !appStore.loadError && !app && (
-            <Text>Приложение не найдено в списке.</Text>
+          <Text>Приложение не найдено в списке.</Text>
         )}
         {!appStore.isLoading && !appStore.loadError && app && (
           <AppForm
@@ -72,14 +70,14 @@ export const AppEdit = observer(function AppEdit() {
           />
         )}
         {!appStore.isLoading && !appStore.loadError && app && (
-            <Button type="button" mode="secondary" onClick={handleDelete}>
-              Удалить приложение
-            </Button>
+          <Button type="button" mode="secondary" onClick={handleDelete}>
+            Удалить приложение
+          </Button>
         )}
         {deleteError && (
-            <Text Component="p" role="alert">
-              {deleteError}
-            </Text>
+          <Text Component="p" role="alert">
+            {deleteError}
+          </Text>
         )}
       </Group>
     </Panel>
