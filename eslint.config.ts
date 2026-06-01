@@ -30,7 +30,7 @@ export default defineConfig(
     languageOptions: { globals: globals.node },
   },
 
-  globalIgnores([".next/**", "out/**", "build/**", "next-env.d.ts"]),
+  globalIgnores(["**/.next/**", "**/out/**", "**/build/**", "**/next-env.d.ts"]),
   {
     settings: {
       react: { version: "19.2.4" },
